@@ -1,0 +1,69 @@
+{
+  "dataset": "FlyRank/internship-warehouse",
+  "training_rows": 94403,
+  "training_clients": 35,
+  "test_rows": 7038,
+  "test_clients": 9,
+  "test_decline_prior": 0.5221653878942881,
+  "models": [
+    {
+      "Model / Approach": "Naive Class Prior (Random Guess)",
+      "ROC-AUC": 0.5,
+      "Brier Score": 0.2495086955794958,
+      "Precision@20": 0.5221653878942881,
+      "Precision@50": 0.5221653878942881,
+      "Precision@100": 0.5221653878942881
+    },
+    {
+      "Model / Approach": "Heuristic Action Rule Baseline",
+      "ROC-AUC": 0.4183006345565285,
+      "Brier Score": NaN,
+      "Precision@20": 0.4,
+      "Precision@50": 0.38,
+      "Precision@100": 0.37
+    },
+    {
+      "Model / Approach": "Logistic Regression (Linear)",
+      "ROC-AUC": 0.7948906163714371,
+      "Brier Score": 0.1869091744564981,
+      "Precision@20": 0.8,
+      "Precision@50": 0.84,
+      "Precision@100": 0.84
+    },
+    {
+      "Model / Approach": "Gradient Boosted Trees (HistGB)",
+      "ROC-AUC": 0.8688306723224526,
+      "Brier Score": 0.15408193086967864,
+      "Precision@20": 1.0,
+      "Precision@50": 0.96,
+      "Precision@100": 0.97
+    }
+  ],
+  "top_signals": [
+    {
+      "Feature": "visible_queries",
+      "Importance (ROC-AUC Drop)": 0.3114763705065731,
+      "Std": 0.0070028430372758195
+    },
+    {
+      "Feature": "anon_share",
+      "Importance (ROC-AUC Drop)": 0.12054488521545995,
+      "Std": 0.0041304019749905845
+    },
+    {
+      "Feature": "imp_prev30",
+      "Importance (ROC-AUC Drop)": 0.10331865175448707,
+      "Std": 0.0034844404032521913
+    },
+    {
+      "Feature": "content_age_days",
+      "Importance (ROC-AUC Drop)": 0.04406380357673841,
+      "Std": 0.0025692892766653722
+    },
+    {
+      "Feature": "rare_share",
+      "Importance (ROC-AUC Drop)": 0.02124361347274557,
+      "Std": 0.001361863110128491
+    }
+  ]
+}
