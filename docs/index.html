@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predicting Search Traffic Decay and Prioritizing Editorial Intervention at Scale</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card-bg: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555555;
+      --border: #e0e0e0;
+      --primary: #0969da;
+      --accent: #0f52ba;
+      --tag-bg: #f0f4f8;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.68;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 48px 56px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
+      border: 1px solid var(--border);
+    }
+    h1 {
+      font-size: 2.1rem;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      color: #111;
+    }
+    .byline {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    h2 {
+      font-size: 1.35rem;
+      margin-top: 36px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 6px;
+      color: #222;
+    }
+    p, li {
+      font-size: 1.02rem;
+      color: #333;
+    }
+    .abstract-box {
+      background-color: var(--tag-bg);
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .abstract-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #fcfcfc;
+    }
+    .figure-container {
+      margin: 28px 0;
+      text-align: center;
+    }
+    .figure-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .caption {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    code {
+      background: #f3f3f3;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    .playbook-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .playbook-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      background: #fff;
+    }
+    .playbook-card h3 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+    footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Predicting Search Traffic Decay and Prioritizing Editorial Intervention at Scale</h1>
+    <div class="byline">
+      Search Intelligence Research Paper &middot; Machine Learning Track &middot; Published August 2026
+    </div>
+
+    <!-- 1. ABSTRACT -->
+    <div class="abstract-box">
+      <strong>Abstract</strong>
+      Maintaining organic search visibility across extensive enterprise content inventories requires timely identification of decaying assets before traffic loss becomes permanent. In this work, we formulate content traffic decay as a supervised classification and ranking task evaluated across 101,441 content items spanning 44 independent client domains. We extract 60-day historical search exposure, CTR efficiency, and query portfolio diversity metrics using DuckDB against a 78.8-million-row warehouse release. Using a strict out-of-client validation split (GroupShuffleSplit on client ID), our gradient boosted tree ensemble achieves a 0.869 ROC-AUC and 96.0% Precision@50, substantially outperforming heuristic baseline rules (0.418 ROC-AUC and 38.0% Precision@50). We operationalize these calibrated probabilities into a four-tier editorial action playbook that ranks decay risk by expected search exposure loss.
+    </div>
+
+    <!-- 2. INTRODUCTION / PROBLEM STATEMENT -->
+    <h2>1. Introduction & Problem Statement</h2>
+    <p>
+      Content decay—the steady erosion of search visibility, impressions, and clicks—represents a primary operational challenge for digital publishers and SEO teams. While search demand continually shifts, editorial bandwidth is strictly constrained. Content teams cannot manually audit thousands of published URLs every month.
+    </p>
+    <p>
+      Historically, teams rely on rigid heuristic filters (e.g., <em>"refresh any page updated &gt; 180 days ago"</em>). However, empirical analysis demonstrates that such rules yield low editorial precision (38.0% Precision@50), flooding content queues with false alarms. Acting on a false positive consumes 4–8 hours of editorial rewriting on healthy assets, while a false negative allows core high-traffic URLs to decay unnoticed. This paper delivers an evidence-backed triage system that prioritizes URLs based on calibrated decay probabilities and expected exposure at risk.
+    </p>
+
+    <!-- 3. DATA -->
+    <h2>2. Data & Privacy Architecture</h2>
+    <p>
+      This research is evaluated on the official gated warehouse release (<code>FlyRank/internship-warehouse</code>), comprising 78,835,655 daily performance rows, 519,606 content dimension records, and 2,414,248 query portfolio entries.
+    </p>
+    <ul>
+      <li><strong>Public Safety & Anonymization:</strong> All URLs, domain names, client names, and raw keyword strings are permanently hashed into cryptographic IDs (<code>client_hash_id</code>, <code>content_hash_id</code>).</li>
+      <li><strong>Temporal Slicing:</strong> To avoid full-history network overhead, we query a mid-panel slice: March 2026 ($T_{-30}$ to $T_0$) serves as the feature baseline, while April 2026 ($T_0$ to $T_{+30}$) provides the outcome evaluation window.</li>
+      <li><strong>Exclusions & Sanitization:</strong> Internal heuristic flags (e.g., <code>priority_score</code>, <code>health_score</code>) and forward-window search metrics were strictly quarantined to guarantee zero circular learning.</li>
+    </ul>
+
+    <!-- 4. METHODOLOGY -->
+    <h2>3. Methodology & Validation Design</h2>
+    <p>
+      We extract 11 observable features categorized into three primary signal groups:
+    </p>
+    <ul>
+      <li><strong>Search Volume & Efficiency:</strong> Historical impressions (<code>imp_prev30</code>), clicks (<code>clk_prev30</code>), CTR (<code>ctr_prev30</code>), and average ranking position (<code>pos_prev30</code>).</li>
+      <li><strong>Query Portfolio Concentration:</strong> Visible query count (<code>visible_queries</code>), anonymized share (<code>anon_share</code>), rare search share (<code>rare_share</code>), and top-query concentration (<code>top_query_share</code>).</li>
+      <li><strong>Freshness & Depth:</strong> Content age (<code>content_age_days</code>), days since update (<code>days_since_last_update</code>), and content type categorization.</li>
+    </ul>
+    <p>
+      <strong>Target Definition:</strong> A binary label <code>is_declining = 1</code> indicates an empirical impression contraction greater than 20% in the subsequent 30-day window ($\text{imp\_last30} &lt; 0.80 \times \text{imp\_prev30}$).
+    </p>
+    <p>
+      <strong>Validation Design:</strong> To evaluate real-world generalization to new domains, we execute an 80/20 <code>GroupShuffleSplit</code> partitioned strictly by <code>client_hash_id</code>. The training set contains 94,403 pages across 35 clients, while the test set comprises 7,038 pages across 9 completely held-out clients with zero cross-client overlap.
+    </p>
+
+    <!-- 5. RESULTS -->
+    <h2>4. Results & Comparative Evaluation</h2>
+    <p>
+      Candidate models were evaluated against the heuristic baseline rule and class prior base rate on the 7,038 held-out client items:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Model / Approach</th>
+          <th>ROC-AUC</th>
+          <th>Brier Score</th>
+          <th>Precision@20</th>
+          <th>Precision@50</th>
+          <th>Precision@100</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Naive Class Prior (Base Rate)</td>
+          <td>0.5000</td>
+          <td>0.2495</td>
+          <td>52.2%</td>
+          <td>52.2%</td>
+          <td>52.2%</td>
+        </tr>
+        <tr>
+          <td>Heuristic Action Rule Baseline</td>
+          <td>0.4183</td>
+          <td>&mdash;</td>
+          <td>40.0%</td>
+          <td>38.0%</td>
+          <td>37.0%</td>
+        </tr>
+        <tr>
+          <td>Logistic Regression (Linear)</td>
+          <td>0.7949</td>
+          <td>0.1869</td>
+          <td>80.0%</td>
+          <td>84.0%</td>
+          <td>84.0%</td>
+        </tr>
+        <tr>
+          <td><strong>Gradient Boosted Trees (HistGB)</strong></td>
+          <td><strong>0.8688</strong></td>
+          <td><strong>0.1541</strong></td>
+          <td><strong>100.0%</strong></td>
+          <td><strong>96.0%</strong></td>
+          <td><strong>97.0%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="figure-container">
+      <img src="capstone_model_evaluation.png" alt="Model Evaluation ROC Curves and Top-K Editorial Triage Precision" />
+      <div class="caption">Figure 1: (Left) Out-of-client ROC curves. (Right) Top-K editorial triage precision comparing HistGB against baseline heuristics.</div>
+    </div>
+
+    <p>
+      <strong>Signal Attribution:</strong> Permutation importance identified query diversity (<code>visible_queries</code>, importance +0.312) and anonymized query share (<code>anon_share</code>, importance +0.121) as the strongest leading indicators of decay, reflecting vulnerability when ranking visibility narrows.
+    </p>
+
+    <!-- 6. LIMITATIONS -->
+    <h2>5. Limitations & Honest Framing</h2>
+    <ul>
+      <li><strong>Observational, Not Causal:</strong> The model detects patterns correlated with traffic decay; it does not measure algorithmic causality or guarantee traffic recovery upon editing.</li>
+      <li><strong>SERP Layout Confounders:</strong> Impression losses caused by third-party search engine layout updates (e.g., expanded AI Overviews or Featured Snippets) cannot be isolated from on-page decay using Search Console aggregates alone.</li>
+      <li><strong>Panel Imbalance:</strong> Client domains vary in tracking history, meaning newly onboarded domains possess sparser trailing baselines.</li>
+    </ul>
+
+    <!-- 7. RECOMMENDATIONS PLAYBOOK -->
+    <h2>6. Ranked Editorial Recommendations Playbook</h2>
+    <p>
+      Predicted probabilities are transformed into an operational queue by weighting decay risk with log-scaled search volume:
+      <code>Priority Score = P(decline) &times; log10(impressions + 1)</code>.
+    </p>
+
+    <div class="playbook-grid">
+      <div class="playbook-card">
+        <h3>Defend Core Asset</h3>
+        <p><strong>Code:</strong> <code>high_volume_page_one_decay</code></p>
+        <p><strong>Condition:</strong> $P \ge 0.60$, Page 1 rank ($\text{pos} \le 10$), $\ge 1{,}000$ impressions.</p>
+        <p><strong>Action:</strong> Comprehensive factual update, schema audit, and competitive gap check.</p>
+      </div>
+      <div class="playbook-card">
+        <h3>Optimize Title & SERP Snippet</h3>
+        <p><strong>Code:</strong> <code>striking_distance_ctr_decay</code></p>
+        <p><strong>Condition:</strong> $P \ge 0.60$, Striking distance ($\text{pos} \le 20$), $\text{CTR} &lt; 1.0\%$.</p>
+        <p><strong>Action:</strong> Rewrite meta titles and headers to improve click-through conversion.</p>
+      </div>
+      <div class="playbook-card">
+        <h3>Topic Diversification</h3>
+        <p><strong>Code:</strong> <code>concentrated_query_risk</code></p>
+        <p><strong>Condition:</strong> $P \ge 0.60$, $\text{top\_query\_share} \ge 70\%$.</p>
+        <p><strong>Action:</strong> Add subheadings and expand adjacent subtopics to broaden search footprint.</p>
+      </div>
+      <div class="playbook-card">
+        <h3>Standard Content Refresh</h3>
+        <p><strong>Code:</strong> <code>stale_inventory_decay</code></p>
+        <p><strong>Condition:</strong> $P \ge 0.60$, Days since update $\ge 180$.</p>
+        <p><strong>Action:</strong> Routine copy update, prune outdated statistics, and verify internal links.</p>
+      </div>
+    </div>
+
+    <!-- 8. REPRODUCIBILITY -->
+    <h2>7. Reproducibility & Repository Access</h2>
+    <p>
+      All data processing, modeling pipelines, and artifact generation scripts are open-source and reproducible:
+    </p>
+    <ul>
+      <li><strong>Capstone Notebook:</strong> <a href="https://github.com/aman-data-search/flyrank-internship-ml/blob/main/work/notebooks/capstone.ipynb"><code>work/notebooks/capstone.ipynb</code></a></li>
+      <li><strong>Repository:</strong> <a href="https://github.com/aman-data-search/flyrank-internship-ml"><code>github.com/aman-data-search/flyrank-internship-ml</code></a></li>
+    </ul>
+
+    <!-- 9. ACKNOWLEDGMENTS -->
+    <footer>
+      <strong>Acknowledgments & Data Credit:</strong><br />
+      Built on the FlyRank ML Internship dataset (<a href="https://flyrank.ai" target="_blank" rel="noopener noreferrer">https://flyrank.ai</a>).
+    </footer>
+  </div>
+</body>
+</html>
